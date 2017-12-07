@@ -28,7 +28,7 @@ public class Application extends Controller {
     		year = "2010";
     	}
     	if(crimetype ==0 ) {
-    		crimetype = 1;
+    		crimetype = 16;
     	}
     	
     	
