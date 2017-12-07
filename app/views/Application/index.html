@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>App title - header.html</title>
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/ui-lightness/jquery-ui.css"> 
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css">
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js"></script>
+		<script src="/public/lib/heatmap.min.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.2.1.js"
+  integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+  crossorigin="anonymous"></script>
+		<script src="/public/lib/leaflet-heatmap.js"></script>
+</head>
+
+<body>
+	<div id="map" style="height:1000px;width:1000px;">
+	
+	</div>
+<div>
+	<select id="yearTag">
+  <option value="2010">2010</option>
+  <option value="2011">2011</option>
+  <option value="2012">2012</option>
+  <option value="2013">2013</option>
+  <option value="2014">2014</option>
+  <option value="2015">2015</option>
+  <option value="2016">2016</option>
+  <option value="2017">2017</option>
+</select>
+	
+	</div>
+<div>
+	<select id="crimeTypeTag">
+
+  <option value="1"> Homicide</option>
+  <option value="2"> Attempted Homicide</option>
+  <option value="3"> Death Investigation  </option>
+  <option value="4"> Sexual Assault</option>
+  <option value="5"> Sexual Offense</option>
+  <option value="6"> Robbery - Commercial</option>
+  <option value="7"> Robbery - Individual</option> 
+  <option value="8"> Aggravated Assault </option>
+  <option value="9"> Assault </option>
+  <option value="10"> Burglary </option>
+  <option value="11"> Burglary - Residential</option>
+  <option value="12"> Theft </option>
+  <option value="13"> Fraud </option>
+  <option value="14"> Shoplifting</option>
+  <option value="15"> Theft - Other</option>
+  <option value="16"> Motor Vehicle Theft</option>
+  <option value="17"> Burglary from Motor Vehicle</option>
+  <option value="18"> Arson</option>
+  <option value="19"> DUI</option>
+  <option value="20"> Alcohol Violation</option>
+  <option value="21"> Drugs / Narcotics Violation</option>
+  <option value="22"> Disorderly Conduct</option>
+  <option value="23"> Traffic Incident</option>
+  <option value="24"> Vandalism</option>
+  <option value="25"> Weapons Violation</option>
+  <option value="26"> All Other - Non-Criminal</option>
+  <option value="27"> All Other - Criminal</option>
+</select>
+</div>
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+
+var map = L.map('map').setView([61.3, -149.5], 10);
+
+L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+var heatmapLayer;
+
+addHeatMapLayer();
+
+
+function addHeatMapLayer(year, crimetype){
+	$.get('/getStupidData?year='+year+'&crimetype='+crimetype).done(function(response){
+		console.log(heatmapLayer)
+
+		if(heatmapLayer){
+			map.removeLayer(heatmapLayer)
+		}
+		var data = {
+				max: 10,
+				data: response
+		
+		}
+		
+		var cfg = {
+			  // radius should be small ONLY if scaleRadius is true (or small radius is intended)
+			  // if scaleRadius is false it will be the constant radius used in pixels
+			  "radius": .005,
+			  "maxOpacity": .8, 
+			  // scales the radius based on map zoom
+			  "scaleRadius": true, 
+			  // if set to false the heatmap uses the global maximum for colorization
+			  // if activated: uses the data maximum within the current map boundaries 
+			  //   (there will always be a red spot with useLocalExtremas true)
+			  "useLocalExtrema": false,
+			  // which field name in your data represents the latitude - default "lat"
+			  latField: 'lat',
+			  // which field name in your data represents the longitude - default "lng"
+			  lngField: 'lng',
+			  // which field name in your data represents the data value - default "value"
+			  valueField: 'count'
+			};
+	heatmapLayer = new HeatmapOverlay(cfg);
+
+	heatmapLayer.setData(data);
+	map.addLayer(heatmapLayer)
+		
+	})
+	
+
+	
+}
+$('#yearTag').change(function(){
+	console.log($('#yearTag').val())
+	addHeatMapLayer($('#yearTag').val(),$('#crimeTypeTag').val())	
+})
+$('#crimeTypeTag').change(function(){
+	console.log($('#yearTag').val())
+	addHeatMapLayer($('#yearTag').val(),$('#crimeTypeTag').val())	
+})	
+</script>
+</body>
+
+
+
